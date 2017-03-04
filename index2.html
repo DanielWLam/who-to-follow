@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>此篇来自http://www.jianshu.com/p/869a3f74d3ca</title>
+	<style>
+		.bmi{
+			padding:30px;
+			margin:20px 0;
+			background: #ececec;
+		}
+	</style>
+</head>
+<body>
+	<input type="text" id="todo">
+	<button id="addBtn">Add</button>
+
+	<div class="bmi">
+		<h1>BMI</h1>
+		Weight: <input type="number" id="weight"> kg
+		<br>
+		Height: <input type="number" id="height">cm
+		<br>
+		Your BMI is <div id="bmi"></div>
+	</div>
+
+	
+	<script src="rx.all.js"></script>
+	<script>
+		let todo = document.getElementById('todo');
+		let addBtn = document.getElementById('addBtn');
+		let weight = document.getElementById('weight');
+		let height = document.getElementById('height');
+		let bmi = document.getElementById('bmi');
+
+		let input$ = Rx.Observable.fromEvent(todo, 'keyup').map(ev => ev.target.value)
+		input$.map(ev => ev.target.value).subscribe(input => console.log(input));
+
+		// let buttonClick$ = Rx.Observable.fromEvent(addBtn, 'click').map(ev => 'clicked');
+
+		// buttonClick$.subscribe(value => console.log(value));
+		
+		// 组合stream
+		// zip 和 combineLatest的区别，前者会一一匹配，后者只取最新的值
+		Rx.Observable.zip(buttonClick$, input$, (ev, input) => {
+			return {
+				ev,
+				input
+			}
+		}).subscribe(value => console.log(value));
+
+		// -------------BMI------------
+		let weight$ = Rx.Observable.fromEvent(weight, 'input').pluck('target', 'value');
+		let height$ = Rx.Observable.fromEvent(height, 'input').pluck('target', 'value');
+		let bmi$ = Rx.Observable.combineLatest(weight$, height$, (w, h) => w / (h * h / 100 / 100));
+		bmi$.subscribe(b => bmi.innerHTML = b);
+	</script>
+</body> 
+</html>
